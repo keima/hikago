@@ -2,18 +2,24 @@ package main
 
 import (
     "fmt"
-    "time"
   )
 
   func main() {
-    go test()
-    time.Sleep(3 * time.Second)
-    fmt.Println("fin")
-  }
+    chanel := make(chan int)
 
-  func test() {
-    for i := 0; i < 5; i++ {
-      fmt.Println("hello", i)
-      time.Sleep(1 * time.Second)
+    go func(s chan<- int) {
+      for i := 1; i < 5; i++ {
+        s <- i
+      }
+      close(s)
+    }(chanel)
+
+    for {
+      value, ok := <-chanel
+      if !ok {
+        fmt.Println("fin")
+        break
+      }
+      fmt.Println(value)
     }
   }
