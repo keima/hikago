@@ -2,24 +2,31 @@ package main
 
 import (
     "fmt"
-  )
+    "os"
+)
+
+  const goroutines = 10
 
   func main() {
-    chanel := make(chan int)
+    counter := make(chan int, 1)
 
-    go func(s chan<- int) {
-      for i := 1; i < 5; i++ {
-        s <- i
-      }
-      close(s)
-    }(chanel)
+    for i := 0; i < goroutines; i++ {
+      go func(counter chan int) {
+        value := <-counter
+        value++
+        fmt.Println("count", value)
+
+        if value == goroutines {
+          os.Exit(0)
+        }
+
+        counter <- value
+      }(counter)
+    }
+
+    counter <- 0
 
     for {
-      value, ok := <-chanel
-      if !ok {
-        fmt.Println("fin")
-        break
-      }
-      fmt.Println(value)
+
     }
   }
